@@ -10,15 +10,12 @@ public static class QueryableExtensions
         var parameter = propertySelector.Parameters[0];
         var property = propertySelector.Body;
 
-        var likeMethod = typeof(DbFunctionsExtensions)
-            .GetMethod(nameof(DbFunctionsExtensions.Like), [typeof(DbFunctions), typeof(string), typeof(string)]);
+        var ilikeMethod = typeof(NpgsqlDbFunctionsExtensions)
+            .GetMethod(nameof(NpgsqlDbFunctionsExtensions.ILike), [typeof(DbFunctions), typeof(string), typeof(string)]);
 
         var filteredTerms = searchTerms
             .Where(term => !string.IsNullOrWhiteSpace(term))
             .ToList();
-
-        if (!filteredTerms.Any())
-            return query;
 
         Expression? orExpression = null;
 
@@ -26,15 +23,15 @@ public static class QueryableExtensions
         {
             var pattern = $"%{term}%";
 
-            var likeCall = Expression.Call(
-                likeMethod!,
+            var ilikeCall = Expression.Call(
+                ilikeMethod!,
                 Expression.Constant(EF.Functions),
                 property,
                 Expression.Constant(pattern));
 
             orExpression = orExpression is null
-                ? likeCall
-                : Expression.OrElse(orExpression, likeCall);
+                ? ilikeCall
+                : Expression.OrElse(orExpression, ilikeCall);
         }
 
         var lambda = Expression.Lambda<Func<T, bool>>(orExpression!, parameter);

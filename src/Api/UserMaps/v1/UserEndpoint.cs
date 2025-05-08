@@ -34,8 +34,10 @@ public static class UserEndpoint
         })
         .WithName("CreatedUser")
         .Produces(StatusCodes.Status201Created)
+        .Produces(StatusCodes.Status400BadRequest)
         .Produces(StatusCodes.Status401Unauthorized)
         .Produces(StatusCodes.Status403Forbidden)
+        .Produces(StatusCodes.Status404NotFound)
         .Produces(StatusCodes.Status500InternalServerError);
 
         group.MapPut("{id}", async ([FromRoute] int id, [FromBody] UpdateUserCommand request, [FromServices] ISender sender) =>
@@ -46,8 +48,10 @@ public static class UserEndpoint
         })
         .WithName("UpdatedUser")
         .Produces(StatusCodes.Status204NoContent)
+        .Produces(StatusCodes.Status400BadRequest)
         .Produces(StatusCodes.Status401Unauthorized)
         .Produces(StatusCodes.Status403Forbidden)
+        .Produces(StatusCodes.Status404NotFound)
         .Produces(StatusCodes.Status500InternalServerError);
 
         group.MapDelete("{id}", async ([FromRoute] int id, [FromServices] ISender sender) =>
@@ -58,8 +62,10 @@ public static class UserEndpoint
         })
         .WithName("DeletedUser")
         .Produces(StatusCodes.Status204NoContent)
+        .Produces(StatusCodes.Status400BadRequest)
         .Produces(StatusCodes.Status401Unauthorized)
         .Produces(StatusCodes.Status403Forbidden)
+        .Produces(StatusCodes.Status404NotFound)
         .Produces(StatusCodes.Status500InternalServerError);
     }
 }

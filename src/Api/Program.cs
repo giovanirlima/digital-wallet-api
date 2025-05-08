@@ -5,20 +5,19 @@ using CrossCutting.Settings;
 using CrossCutting.Settings.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-var services = builder.Services;
-var configuration = builder.Configuration;
+var bootstrapper = new Bootstrapper(builder.Services);
 var isDebug = builder.Environment.IsDevelopment();
-var bootstrapper = new Bootstrapper(services);
 
 #pragma warning disable CS8604
 AppSettings.Initialize(
-    configuration.GetSection("Database").Get<Database>());
+    builder.Configuration.GetSection("Database").Get<Database>());
 #pragma warning restore CS8604
 
 bootstrapper.Inject(isDebug);
-services.AddEndpointsApiExplorer();
-services.AddSwaggerGen();
-services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services
+    .AddEndpointsApiExplorer()
+    .AddSwaggerGen()
+    .AddExceptionHandler<GlobalExceptionHandler>();
 
 var app = builder.Build();
 

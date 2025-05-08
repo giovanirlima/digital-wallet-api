@@ -16,10 +16,10 @@ public class UserQueryRepository(ReadOnlyContext context) : IUserQueryRepository
         var query = _context.User.AsQueryable();
 
         if (request?.Id?.Any() is true)
-            query = query.Where(x => request.Id.Equals(x.Id));
+            query = query.Where(x => request.Id.Contains(x.Id));
 
         if (request?.Name?.Any() is true)
-            query = query.WhereLikeAny(x => x.Name, request.Name);
+            query = query.WhereLikeAny(x => x.Name.ToLower(), request.Name);
 
         if (request?.Email?.Any() is true)
             query = query.WhereLikeAny(x => x.Email, request.Email);

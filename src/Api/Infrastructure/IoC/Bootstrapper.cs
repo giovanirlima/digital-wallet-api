@@ -57,13 +57,7 @@ public class Bootstrapper(IServiceCollection services)
     {
         _services.AddDbContextPool<ReadOnlyContext>(opt =>
         {
-            var connectionString =
-                $"Server={AppSettings.Database.ReadHost};" +
-                $"Database={AppSettings.Database.Base};" +
-                $"User Id={AppSettings.Database.User};" +
-                $"Password={AppSettings.Database.Password}";
-
-            opt.UseNpgsql(connectionString);
+            opt.UseNpgsql(AppSettings.Database.ReadHost);
 
             if (isDebug)
             {
@@ -74,13 +68,7 @@ public class Bootstrapper(IServiceCollection services)
 
         _services.AddDbContextPool<ReadWriteContext>(opt =>
         {
-            var connectionString =
-                $"Server={AppSettings.Database.ReadHost};" +
-                $"Database={AppSettings.Database.Base};" +
-                $"User Id={AppSettings.Database.User};" +
-                $"Password={AppSettings.Database.Password}";
-
-            opt.UseNpgsql(connectionString);
+            opt.UseNpgsql(AppSettings.Database.WriteHost);
 
             if (isDebug)
             {

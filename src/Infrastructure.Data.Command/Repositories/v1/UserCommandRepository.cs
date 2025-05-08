@@ -14,7 +14,7 @@ public class UserCommandRepository(ReadWriteContext context) : IUserCommandRepos
         await _context.User.Include(x => x.Address).FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
     public async Task<User?> GetUserByEmailAsync(string email, CancellationToken cancellationToken) =>
-        await _context.User.WhereLikeAny(x => x.Email, [email]).FirstOrDefaultAsync(cancellationToken);
+        await _context.User.WhereLikeAny(x => x.Email.ToLower(), [email.ToLower()]).FirstOrDefaultAsync(cancellationToken);
 
     public async Task AddUserAsync(User user, CancellationToken cancellationToken)
     {
