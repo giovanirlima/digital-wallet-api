@@ -16,6 +16,17 @@ public class UserMap : IEntityTypeConfiguration<User>
         builder.Property(x => x.Name).IsRequired().HasMaxLength(50);
         builder.Property(x => x.Birthday).IsRequired();
         builder.Property(x => x.Email).IsRequired();
+        builder.Property(x => x.CreatedAt).HasDefaultValue(DateTime.UtcNow)
+            .HasColumnType("timestamp with time zone")
+            .HasConversion(
+                v => v.Value.ToUniversalTime(),
+                v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+
+        builder.Property(x => x.UpdatedAt).HasDefaultValue(DateTime.UtcNow)
+            .HasColumnType("timestamp with time zone")
+            .HasConversion(
+                v => v.Value.ToUniversalTime(),
+                v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
 
         builder.HasIndex(x => x.Email).IsUnique();
 

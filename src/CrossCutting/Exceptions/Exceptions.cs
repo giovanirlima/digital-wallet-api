@@ -1,0 +1,9 @@
+﻿using Microsoft.AspNetCore.Http;
+
+namespace CrossCutting.Exceptions;
+
+public class BadRequestException(string message) : BaseException(message, StatusCodes.Status400BadRequest);
+
+public class NotFoundException(string message) : BaseException(message, StatusCodes.Status404NotFound);
+
+public class ForbiddenException(string message) : BaseException(message, StatusCodes.Status403Forbidden);
