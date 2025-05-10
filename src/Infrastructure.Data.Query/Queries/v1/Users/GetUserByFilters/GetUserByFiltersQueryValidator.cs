@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+﻿global using FluentValidation;
 
 namespace Infrastructure.Data.Query.Queries.v1.Users.GetUserByFilters;
 
