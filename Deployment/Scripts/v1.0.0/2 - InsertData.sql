@@ -14,8 +14,8 @@ wallet_data AS (
 ),
 -- 3. Inserir 10 Usuários
 user_data AS (
-    INSERT INTO Bank."User" ("AddressId", "Name", "Birthday", "Email", "WalletId")
-    SELECT a."Id", 'Usuário ' || a."Id", DATE '1990-01-01' + (a."Id" * INTERVAL '365 days'),
+    INSERT INTO Bank."User" ("AddressId", "Name", "Password", "Birthday", "Email", "WalletId")
+    SELECT a."Id", 'Usuário ' || a."Id", 'Usuário ' || a."Id", DATE '1990-01-01' + (a."Id" * INTERVAL '365 days'),
            'user' || a."Id" || '@teste.com', w."Id"
     FROM address_data a
     JOIN wallet_data w ON w."UserId" = a."Id"
