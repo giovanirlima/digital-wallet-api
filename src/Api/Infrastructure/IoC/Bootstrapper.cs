@@ -1,80 +1,64 @@
 ﻿using Api.Behaviors;
+using Api.Infrastructure.Profiles;
 using CrossCutting.Settings;
+using Domain.Interfaces.v1;
 using FluentValidation;
 using Infrastructure.Data.Command.Commands.v1.Users.AddUser;
 using Infrastructure.Data.Command.Interfaces.v1;
 using Infrastructure.Data.Command.Repositories.v1;
 using Infrastructure.Data.Database.Selectors;
+using Infrastructure.Data.Publisher.Publishers.v1;
 using Infrastructure.Data.Query.Interfaces.v1;
 using Infrastructure.Data.Query.Queries.v1.Users.GetUserByFilters;
 using Infrastructure.Data.Query.Repositories.v1;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection;
 
 namespace Api.Infrastructure.IoC;
 
-public class Bootstrapper(IServiceCollection services)
+internal static class Bootstrapper
 {
-    private readonly IServiceCollection _services = services;
-
-    private readonly Assembly[] _assemblies =
-    [
-        typeof(AddUserCommand).Assembly,
-        typeof(GetUserByFiltersQuery).Assembly,
-        typeof(Program).Assembly
-    ];
-
-    public void Inject(bool isDebug)
+    public static IServiceCollection Inject(this IServiceCollection services)
     {
-        InjectMediatorsDependencies();
-        InjectValidatorsDependencies();
-        injectAutoMapper();
-        InjectContexts(isDebug);
-        InjectRepositoriesDependencies();
+        InjectMediators(services);
+        InjectValidators(services);
+        injectAutoMapper(services);
+        InjectContexts(services);
+        InjectCommandRepositories(services);
+        InjectQueryRepositories(services);
+        InjectClients(services);
+
+        return services;
     }
 
-    private void InjectMediatorsDependencies() =>
-        _services.AddMediatR(config =>
+    private static void InjectMediators(IServiceCollection services) =>
+        services.AddMediatR(config =>
         {
-            config.RegisterServicesFromAssemblies(_assemblies);
+            config.RegisterServicesFromAssemblies(typeof(AddUserCommand).Assembly, typeof(GetUserByFiltersQuery).Assembly);
             config.AddOpenBehavior(typeof(ValidationBehavior<,>));
             config.AddOpenBehavior(typeof(LoggerBehavior<,>));
         });
+    private static void InjectValidators(IServiceCollection services) =>
+        services.AddValidatorsFromAssemblies([typeof(AddUserCommand).Assembly, typeof(GetUserByFiltersQuery).Assembly]);
 
-    private void InjectValidatorsDependencies() =>
-        _services.AddValidatorsFromAssemblies(_assemblies);
+    private static void injectAutoMapper(IServiceCollection services) =>
+        services.AddAutoMapper(typeof(UserProfile).Assembly);
 
-    private void injectAutoMapper() =>
-        _services.AddAutoMapper(_assemblies);
+    private static void InjectCommandRepositories(IServiceCollection services) =>
+        services.AddScoped<IUserCommandRepository, UserCommandRepository>();
 
-    private void InjectRepositoriesDependencies()
-    {
-        _services.AddScoped<IUserQueryRepository, UserQueryRepository>();
-        _services.AddScoped<IUserCommandRepository, UserCommandRepository>();
-    }
+    private static void InjectQueryRepositories(IServiceCollection services) =>
+        services.AddScoped<IUserQueryRepository, UserQueryRepository>();
 
-    private void InjectContexts(bool isDebug)
-    {
-        _services.AddDbContextPool<ReadOnlyContext>(opt =>
+    private static void InjectContexts(IServiceCollection services) =>
+        services.AddDbContextPool<ReadOnlyContext>(opt =>
         {
             opt.UseNpgsql(AppSettings.Database.ReadHost);
-
-            if (isDebug)
-            {
-                opt.EnableSensitiveDataLogging(true);
-                opt.LogTo(Console.WriteLine, LogLevel.Information);
-            }
-        }, 128);
-
-        _services.AddDbContextPool<ReadWriteContext>(opt =>
+        }, 128)
+        .AddDbContextPool<ReadWriteContext>(opt =>
         {
             opt.UseNpgsql(AppSettings.Database.WriteHost);
-
-            if (isDebug)
-            {
-                opt.EnableSensitiveDataLogging(true);
-                opt.LogTo(Console.WriteLine, LogLevel.Information);
-            }
         }, 128);
-    }
+
+    private static void InjectClients(IServiceCollection services) =>
+        services.AddSingleton<IRabbitMqPublisher, RabbitMqPublisher>();
 }

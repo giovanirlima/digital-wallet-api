@@ -1,4 +1,4 @@
-﻿using Domain.Entities.v1;
+﻿using Domain.DataTransferObjects.v1;
 using Infrastructure.Data.Command.Commands.v1.Users.AddUser;
 using Infrastructure.Data.Command.Commands.v1.Users.DeleteUser;
 using Infrastructure.Data.Command.Commands.v1.Users.UpdateUser;
@@ -6,7 +6,7 @@ using Infrastructure.Data.Query.Queries.v1.Users.GetUserByFilters;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Api.UserMaps.v1;
+namespace Api.UserEndpoints.v1;
 
 public static class UserEndpoint
 {

@@ -1,7 +1,8 @@
 ﻿using AutoMapper;
-using Domain.Entities.v1;
+using Domain.DataTransferObjects.v1;
 using Infrastructure.Data.Command.Commands.v1.Users.AddUser;
 using Infrastructure.Data.Command.Commands.v1.Users.UpdateUser;
+using Infrastructure.Data.Database.Tables.v1;
 
 namespace Api.Infrastructure.Profiles;
 
@@ -9,26 +10,23 @@ public class UserProfile : Profile
 {
     public UserProfile()
     {
-        CreateMap<AddUserCommand, User>(MemberList.None);
-        CreateMap<UpdateUserCommand, User>(MemberList.None)
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
-            .ForMember(dest => dest.AddressId, opt => opt.Ignore())
-            .ForMember(dest => dest.Address, opt => opt.Ignore())
-            .ForMember(dest => dest.Name, opt => opt.MapFrom<NameUpdateResolver>())
-            .ForMember(dest => dest.Email, opt => opt.MapFrom<NameUpdateResolver>())
-            .ForMember(dest => dest.Birthday, opt => opt.MapFrom<NameUpdateResolver>())
-            .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow));
+        CreateMap<AddUserCommand, UserTable>(MemberList.None)
+            .ForMember(dest => dest.Password, opt => opt.MapFrom(src => BCrypt.Net.BCrypt.HashPassword(src.Password)))
+            .ForMember(dest => dest.AddressTable, opt => opt.MapFrom(src => src.Address));
+
+        CreateMap<UpdateUserCommand, UserTable>(MemberList.None);
+
+        CreateMap<UserTable, User>()
+            .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.AddressTable))
+            .ForMember(dest => dest.Wallet, opt => opt.MapFrom(src => src.WalletTable))
+            .ForMember(dest => dest.SentTransactions, opt => opt.MapFrom(src => src.SentTransaction))
+            .ForMember(dest => dest.ReceivedTransactions, opt => opt.MapFrom(src => src.ReceivedTransaction));
+
+        CreateMap<AddressTable, Address>(MemberList.None).ReverseMap();
+        CreateMap<WalletTable, Wallet>(MemberList.None).ReverseMap();
+
+        CreateMap<TransactionTable, Transaction>(MemberList.None)
+            .ForMember(dest => dest.FromUsername, opt => opt.MapFrom(src => src.FromUser.Name))
+            .ForMember(dest => dest.ToUsername, opt => opt.MapFrom(src => src.ToUser.Name));
     }
-}
-
-public class NameUpdateResolver
-    : IValueResolver<UpdateUserCommand, User, string>,
-      IValueResolver<UpdateUserCommand, User, DateTime>
-{
-    public string Resolve(UpdateUserCommand source, User destination, string destMember, ResolutionContext context) =>
-        source.Name ?? destination.Name;
-
-    public DateTime Resolve(UpdateUserCommand source, User destination, DateTime destMember, ResolutionContext context) =>
-        source.Birthday ?? DateTime.SpecifyKind(destination.Birthday, DateTimeKind.Utc);
 }
