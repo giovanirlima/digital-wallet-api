@@ -1,4 +1,4 @@
-﻿using Domain.DataTransferObjects.v1;
+using Domain.DataTransferObjects.v1;
 using Infrastructure.Data.Command.Commands.v1.Users.AddUser;
 using Infrastructure.Data.Command.Commands.v1.Users.DeleteUser;
 using Infrastructure.Data.Command.Commands.v1.Users.UpdateUser;
@@ -20,6 +20,7 @@ public static class UserEndpoint
 
             return Results.Ok(users);
         })
+        .RequireAuthorization()
         .WithName("GetUsers")
         .Produces<IEnumerable<User>>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized)
@@ -46,6 +47,7 @@ public static class UserEndpoint
 
             return Results.NoContent();
         })
+        .RequireAuthorization()
         .WithName("UpdatedUser")
         .Produces(StatusCodes.Status204NoContent)
         .Produces(StatusCodes.Status400BadRequest)
@@ -60,6 +62,7 @@ public static class UserEndpoint
 
             return Results.NoContent();
         })
+        .RequireAuthorization()
         .WithName("DeletedUser")
         .Produces(StatusCodes.Status204NoContent)
         .Produces(StatusCodes.Status400BadRequest)

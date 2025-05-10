@@ -2,6 +2,7 @@
 using Api.Infrastructure.Profiles;
 using CrossCutting.Settings;
 using Domain.Interfaces.v1;
+using Domain.Services.v1;
 using FluentValidation;
 using Infrastructure.Data.Command.Commands.v1.Users.AddUser;
 using Infrastructure.Data.Command.Interfaces.v1;
@@ -25,6 +26,7 @@ internal static class Bootstrapper
         InjectContexts(services);
         InjectCommandRepositories(services);
         InjectQueryRepositories(services);
+        InjectServices(services);
         InjectClients(services);
 
         return services;
@@ -61,4 +63,7 @@ internal static class Bootstrapper
 
     private static void InjectClients(IServiceCollection services) =>
         services.AddSingleton<IRabbitMqPublisher, RabbitMqPublisher>();
+
+    private static void InjectServices(IServiceCollection services) =>
+        services.AddSingleton<IAuthService, AuthService>();
 }

@@ -1,5 +1,6 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Domain.DataTransferObjects.v1;
+using Domain.Extensions;
 using Infrastructure.Data.Command.Commands.v1.Users.AddUser;
 using Infrastructure.Data.Command.Commands.v1.Users.UpdateUser;
 using Infrastructure.Data.Database.Tables.v1;
@@ -11,7 +12,7 @@ public class UserProfile : Profile
     public UserProfile()
     {
         CreateMap<AddUserCommand, UserTable>(MemberList.None)
-            .ForMember(dest => dest.Password, opt => opt.MapFrom(src => BCrypt.Net.BCrypt.HashPassword(src.Password)))
+            .ForMember(dest => dest.Password, opt => opt.MapFrom(src => src.Password.Encrypt()))
             .ForMember(dest => dest.AddressTable, opt => opt.MapFrom(src => src.Address));
 
         CreateMap<UpdateUserCommand, UserTable>(MemberList.None);

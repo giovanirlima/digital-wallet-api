@@ -1,4 +1,4 @@
-﻿using Domain.Enums.v1;
+using Domain.Enums.v1;
 using Infrastructure.Data.Command.Commands.v1.Wallets.AddTransaction;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +17,7 @@ public static class WalletEndpoint
 
             return Results.Created("AddTransactiopn", $"Solicitacão de {GetTransactionType(request.Transaction)} criado com sucesso.");
         })
+        .RequireAuthorization()
         .WithName("AddTransaction")
         .Produces(StatusCodes.Status201Created)
         .Produces(StatusCodes.Status400BadRequest)
