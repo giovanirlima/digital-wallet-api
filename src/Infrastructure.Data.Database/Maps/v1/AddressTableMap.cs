@@ -1,12 +1,13 @@
-﻿using Domain.Entities.v1;
+﻿
+using Infrastructure.Data.Database.Tables.v1;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Data.Database.Maps.v1;
 
-public class AddressMap : IEntityTypeConfiguration<Address>
+public class AddressTableMap : IEntityTypeConfiguration<AddressTable>
 {
-    public void Configure(EntityTypeBuilder<Address> builder)
+    public void Configure(EntityTypeBuilder<AddressTable> builder)
     {
         builder.ToTable("Address");
 
