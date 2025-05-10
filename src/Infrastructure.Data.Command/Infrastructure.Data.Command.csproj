@@ -12,4 +12,8 @@
     <ProjectReference Include="..\Infrastructure.Data.Database\Infrastructure.Data.Database.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Interfaces\v1\" />
+  </ItemGroup>
+
 </Project>

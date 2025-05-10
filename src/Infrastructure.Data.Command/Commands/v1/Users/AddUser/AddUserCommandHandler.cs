@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using CrossCutting.Exceptions;
-using Domain.Entities.v1;
 using Infrastructure.Data.Command.Interfaces.v1;
+using Infrastructure.Data.Database.Tables.v1;
 using MediatR;
 
 namespace Infrastructure.Data.Command.Commands.v1.Users.AddUser;
@@ -18,7 +18,7 @@ public class AddUserCommandHandler(IMapper mapper, IUserCommandRepository userCo
         if (userExists is not null)
             throw new BadRequestException("Email informado já está cadastrado.");
 
-        var user = _mapper.Map<User>(request);
+        var user = _mapper.Map<UserTable>(request);
 
         await _userCommandRepository.AddUserAsync(user, cancellationToken);
     }
