@@ -1,4 +1,4 @@
-﻿using Domain.Entities.v1;
+﻿using Domain.DataTransferObjects.v1;
 using FluentValidation;
 
 namespace Domain.Validators.v1;
