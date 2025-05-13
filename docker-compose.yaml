@@ -1,0 +1,85 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./deployment/scripts/v1.0.0:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  digital-wallet-api:
+    build:
+      context: ./src
+      dockerfile: ../deployment/dockerfile
+    container_name: digital-wallet-api
+    environment:
+      ASPNETCORE_URLS: http://+:80
+      ASPNETCORE_ENVIRONMENT: Development
+
+      # Configurações do Banco de Dados
+      Database__ReadHost: "Server=postgres;Database=postgres;User Id=postgres;Password=postgres"
+      Database__WriteHost: "Server=postgres;Database=postgres;User Id=postgres;Password=postgres"
+
+      # Configurações do RabbitMQ
+      RabbitMqSettings__HostName: "rabbitmq"
+      RabbitMqSettings__Username: "guest"
+      RabbitMqSettings__Password: "guest"
+
+      # Configurações de Autenticação
+      Auth__JwtSecret: "g@U9!vZ#2rXw&E7L%tPq+BnM5sJhKzD3"
+      Auth__JwtIssuer: "Digital.Wallet.Api"
+      Auth__JwtAudience: "Client"
+      Auth__JwtExpireMinutes: "15"
+    ports:
+      - "7294:80"
+
+  digital-wallet-consumer:
+    build:
+      context: ./src
+      dockerfile: ../deployment/dockerfile.consumer
+    container_name: digital-wallet-consumer
+    environment:
+      ASPNETCORE_ENVIRONMENT: Docker
+
+      # Configurações do Banco de Dados
+      Database__ReadHost: "Server=postgres;Database=postgres;User Id=postgres;Password=postgres"
+      Database__WriteHost: "Server=postgres;Database=postgres;User Id=postgres;Password=postgres"
+
+      # Configurações do RabbitMQ
+      RabbitMqSettings__HostName: "rabbitmq"
+      RabbitMqSettings__Username: "guest"
+      RabbitMqSettings__Password: "guest"
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

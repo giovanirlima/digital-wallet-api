@@ -1,0 +1,30 @@
+# Etapa de build
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /src
+
+# Copia os arquivos de projeto e restaura dependências
+COPY ["Digital.Wallet.Api/Digital.Wallet.Api.csproj", "Digital.Wallet.Api/"]
+COPY ["Digital.Wallet.Application.Command/Digital.Wallet.Application.Command.csproj", "Digital.Wallet.Application.Command/"]
+COPY ["Digital.Wallet.Application.Publisher/Digital.Wallet.Application.Publisher.csproj", "Digital.Wallet.Application.Publisher/"]
+COPY ["Digital.Wallet.Application.Query/Digital.Wallet.Application.Query.csproj", "Digital.Wallet.Application.Query/"]
+COPY ["Digital.Wallet.CrossCutting/Digital.Wallet.CrossCutting.csproj", "Digital.Wallet.CrossCutting/"]
+COPY ["Digital.Wallet.Domain/Digital.Wallet.Domain.csproj", "Digital.Wallet.Domain/"]
+COPY ["Digital.Wallet.Infrastructure.Data.Database/Digital.Wallet.Infrastructure.Data.Database.csproj", "Digital.Wallet.Infrastructure.Data.Database/"]
+
+RUN dotnet restore "Digital.Wallet.Api/Digital.Wallet.Api.csproj"
+
+# Copia o restante dos arquivos
+COPY . .
+WORKDIR "/src/Digital.Wallet.Api"
+RUN dotnet publish -c Release -o /app/publish
+
+# Etapa de runtime
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
+WORKDIR /app
+COPY --from=build /app/publish .
+
+# Define a porta (ajuste se usar outra)
+EXPOSE 8080
+EXPOSE 8081
+
+ENTRYPOINT ["dotnet", "Digital.Wallet.Api.dll"]

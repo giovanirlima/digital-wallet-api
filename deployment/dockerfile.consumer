@@ -1,0 +1,24 @@
+# Etapa de build
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /src
+
+# Copia os arquivos de projeto e restaura as dependências
+COPY ["Digital.Wallet.Application.Consumer/Digital.Wallet.Application.Consumer.csproj", "Digital.Wallet.Application.Consumer/"]
+COPY ["Digital.Wallet.Application.Query/Digital.Wallet.Application.Query.csproj", "Digital.Wallet.Application.Query/"]
+COPY ["Digital.Wallet.CrossCutting/Digital.Wallet.CrossCutting.csproj", "Digital.Wallet.CrossCutting/"]
+COPY ["Digital.Wallet.Infrastructure.Data.Database/Digital.Wallet.Infrastructure.Data.Database.csproj", "Digital.Wallet.Infrastructure.Data.Database/"]
+
+RUN dotnet restore "Digital.Wallet.Application.Consumer/Digital.Wallet.Application.Consumer.csproj"
+
+# Copia o restante dos arquivos e compila
+COPY . .
+WORKDIR "/src/Digital.Wallet.Application.Consumer"
+RUN dotnet publish -c Release -o /app/publish
+
+# Etapa final
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
+WORKDIR /app
+COPY --from=build /app/publish .
+
+# Define o entrypoint padrão
+ENTRYPOINT ["dotnet", "Digital.Wallet.Application.Consumer.dll"]
