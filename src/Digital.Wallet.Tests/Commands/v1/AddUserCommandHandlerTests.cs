@@ -39,7 +39,6 @@ public class AddUserCommandHandlerTests
     [TestMethod]
     public async Task Handle_ShouldAddUser_WhenEmailDoesNotExist()
     {
-        // Arrange
         var request = new AddUserCommand { Email = "new@example.com" };
         var userTable = new UserTable { Email = request.Email };
 

@@ -44,7 +44,6 @@ public class AddTransactionCommandHandlerTests
     [TestMethod]
     public async Task Handle_WithWithdrawTransaction_ShouldPublishToWithdrawQueue()
     {
-        // Arrange
         var command = new AddTransactionCommand
         {
             Transaction = TransactionType.Withdraw
