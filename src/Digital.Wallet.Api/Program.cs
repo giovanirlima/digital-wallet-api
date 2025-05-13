@@ -26,7 +26,7 @@ builder.Services
     .AddProblemDetails()
     .AddSwaggerGen(s =>
     {
-        s.SwaggerDoc("v1", new OpenApiInfo { Title = "WallDigital.Wallet.Api", Version = "v1" });
+        s.SwaggerDoc("v1", new OpenApiInfo { Title = "Digital.Wallet.Api", Version = "v1" });
         s.UseInlineDefinitionsForEnums();
 
         var securityScheme = new OpenApiSecurityScheme

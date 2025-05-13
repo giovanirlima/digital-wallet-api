@@ -112,7 +112,6 @@ ctrl + c
 
 Para acessar o swagger da aplicação:
 Acesse em: [http://localhost:7294/swagger](http://localhost:7294/swagger)  
-Para encerrar: `Ctrl + C`
 
 ---
 
