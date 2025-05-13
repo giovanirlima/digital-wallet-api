@@ -6,18 +6,10 @@ using RabbitMQ.Client;
 
 namespace Digital.Wallet.Publishers.v1;
 
-public class RabbitMqPublisher : IRabbitMqPublisher
+public class RabbitMqPublisher(IConnection connection) : IRabbitMqPublisher
 {
     public async Task PublishMessage<T>(T message, string exchangeName, string routingKey, string queueName, CancellationToken cancellationToken) where T : class
     {
-        var factory = new ConnectionFactory
-        {
-            HostName = AppSettings.RabbitMqSettings.HostName,
-            UserName = AppSettings.RabbitMqSettings.Username,
-            Password = AppSettings.RabbitMqSettings.Password,
-        };
-
-        using var connection = await factory.CreateConnectionAsync(cancellationToken);
         using var channel = await connection.CreateChannelAsync(cancellationToken: cancellationToken);
 
         await channel.ExchangeDeclareAsync(

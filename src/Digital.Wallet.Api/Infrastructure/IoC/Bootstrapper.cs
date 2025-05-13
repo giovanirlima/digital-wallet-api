@@ -11,6 +11,7 @@ using Digital.Wallet.Settings;
 using FluentValidation;
 using Infrastructure.Data.Query.Repositories.v1;
 using Microsoft.EntityFrameworkCore;
+using RabbitMQ.Client;
 
 namespace Digital.Wallet.Infrastructure.IoC;
 
@@ -25,6 +26,7 @@ internal static class Bootstrapper
         InjectRepositories(services);
         InjectServices(services);
         InjectClients(services);
+        InjectConnectionRabbitMq(services);
 
         return services;
     }
@@ -65,4 +67,17 @@ internal static class Bootstrapper
 
     private static void InjectServices(IServiceCollection services) =>
         services.AddSingleton<IAuthService, AuthService>();
+
+    private static void InjectConnectionRabbitMq(IServiceCollection services) =>
+        services.AddSingleton(sp =>
+        {
+            var factory = new ConnectionFactory
+            {
+                HostName = AppSettings.RabbitMqSettings.HostName,
+                UserName = AppSettings.RabbitMqSettings.Username,
+                Password = AppSettings.RabbitMqSettings.Password
+            };
+
+            return factory.CreateConnectionAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+        });
 }

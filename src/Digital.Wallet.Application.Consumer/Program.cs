@@ -2,6 +2,7 @@ using Digital.Wallet.Selectors;
 using Digital.Wallet.Settings;
 using Digital.Wallet.Settings.Models;
 using Microsoft.EntityFrameworkCore;
+using RabbitMQ.Client;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -15,6 +16,16 @@ builder.Services.AddDbContextPool<ReadWriteContext>(opt =>
 {
     opt.UseNpgsql(AppSettings.Database.WriteHost);
 }, 128);
+
+builder.Services.AddSingleton(sp =>
+{
+    var factory = new ConnectionFactory
+    {
+        HostName = AppSettings.RabbitMqSettings.HostName
+    };
+
+    return factory.CreateConnectionAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+});
 
 builder.Services.AddScoped<ITransactionHandler, TransactionHandler>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();

@@ -1,11 +1,8 @@
-using Digital.Wallet.Settings;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
-public class Worker(ILogger<Worker> logger, IServiceProvider serviceProvider) : BackgroundService
+public class Worker(ILogger<Worker> logger, IServiceProvider serviceProvider, IConnection connection) : BackgroundService
 {
-    private readonly ILogger _logger = logger;
-    private readonly IServiceProvider _serviceProvider = serviceProvider;
     private readonly Dictionary<string, Type> _consumerTypes =
         new()
         {
@@ -16,15 +13,12 @@ public class Worker(ILogger<Worker> logger, IServiceProvider serviceProvider) : 
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var factory = new ConnectionFactory { HostName = AppSettings.RabbitMqSettings.HostName };
-
-        using var connection = await factory.CreateConnectionAsync(stoppingToken);
         using var channel = await connection.CreateChannelAsync(cancellationToken: stoppingToken);
 
         foreach (var (queueName, consumerType) in _consumerTypes)
         {
             var consumer = (BaseConsumer)ActivatorUtilities.CreateInstance(
-                _serviceProvider, consumerType);
+                serviceProvider, consumerType);
 
             var asyncConsumer = new AsyncEventingBasicConsumer(channel);
 
@@ -38,7 +32,7 @@ public class Worker(ILogger<Worker> logger, IServiceProvider serviceProvider) : 
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            _logger.LogInformation("Worker running at: {time}", DateTime.Now);
+            logger.LogInformation("Worker running at: {time}", DateTime.Now);
             await Task.Delay(1000, stoppingToken);
         }
     }
