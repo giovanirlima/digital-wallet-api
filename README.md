@@ -66,6 +66,31 @@ docker run -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgres:16
 Execute os scripts de migração em:  
 `deployment/scripts/v1.0.0`
 
+---
+
+## 🐰 RabbitMQ - Mensageria Assíncrona
+
+A aplicação utiliza o **RabbitMQ** para processar transações de forma assíncrona. Isso garante que operações críticas como transferências financeiras não bloqueiem a API principal, aumentando a escalabilidade e resiliência do sistema.
+
+### 📦 Como Instalar o RabbitMQ
+
+#### Usando Docker (Recomendado)
+
+```bash
+docker run -d --hostname rabbitmq-host --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3-management
+```
+
+- Acesse o painel de administração em: [http://localhost:15672](http://localhost:15672)  
+- Usuário padrão: `guest`  
+- Senha padrão: `guest`  
+
+### 📌 Observações
+
+- A aplicação se conecta ao RabbitMQ automaticamente ao subir os containers com `docker-compose`.
+- Certifique-se de que a porta `5672` (conexão) e `15672` (painel) estão liberadas.
+
+---
+
 ### ▶️ Executando a Aplicação
 
 Inicie os seguintes projetos:
